@@ -61,10 +61,13 @@
       </nav>
 
       <div class="sidebar-footer">
-        <div class="connection-status" id="connection-status">
+        <div class="connection-status" id="connection-status" style="margin-bottom: 12px;">
           <span class="status-dot" id="status-dot"></span>
           <span id="status-text">Desconectado</span>
         </div>
+        <button class="btn btn-outline btn-sm w-full" id="btn-logout" style="justify-content: center; color: var(--text-muted); border-color: var(--border-color);">
+          <i data-lucide="log-out" class="lucide-icon"></i> Desconectar
+        </button>
       </div>
     </aside>
 
@@ -89,7 +92,6 @@
             </div>
           </div>
         </div>
-        <button class="icon-btn" title="Histórico"><i data-lucide="history" class="lucide-icon"></i></button>
         <img src="https://ui-avatars.com/api/?name=User&background=4648d4&color=fff" alt="User" class="user-avatar">
       </div>
     </header>
@@ -128,9 +130,9 @@
             </div>
           </div>
 
-          <div class="grid-bento mt-xl">
-            <!-- Coluna Esquerda: Histórico -->
-            <div class="col-7" style="display:flex; flex-direction:column;">
+          <div class="grid-bento mt-xl" style="grid-template-columns: 1fr;">
+            <!-- Histórico -->
+            <div class="col-12" style="display:flex; flex-direction:column;">
               <div class="card" style="flex:1;">
                 <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                   <h3><i data-lucide="history" class="lucide-icon inline-icon"></i> Histórico Recente de Disparos</h3>
@@ -157,8 +159,8 @@
               </div>
             </div>
 
-            <!-- Coluna Direita: Etapas e Guia -->
-            <div class="col-5" style="display:flex; flex-direction:column; gap:var(--space-lg);">
+            <!-- Etapas e Guia -->
+            <div class="col-12" style="display:flex; flex-direction:column; gap:var(--space-lg);">
               <div class="card">
                 <div class="card-header">
                   <h3><i data-lucide="map" class="lucide-icon"></i> Etapas da Campanha</h3>
