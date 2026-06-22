@@ -27,25 +27,19 @@ const App = {
     if (btnLogout) {
       btnLogout.addEventListener('click', () => {
         if (confirm('Tem certeza que deseja desconectar o provedor de e-mail?')) {
-          // Clique simulado no botão limpar da config (se existir na DOM)
-          const clearBtn = document.getElementById('btn-clear-config');
-          if (clearBtn) clearBtn.click();
-          
-          // Limpa também o OAuth se tiver
-          const gAuth = document.getElementById('btn-google-login');
-          if (gAuth) gAuth.style.display = 'block';
-          const gConnected = document.getElementById('google-connected-user');
-          if (gConnected) gConnected.style.display = 'none';
-
           this.state.provider = null;
           this.state.smtpConfig = null;
           this.state.isConnected = false;
           this.saveState();
-          this.updateConnectionUI();
-          this.toast('info', 'Desconectado', 'Sua sessão foi encerrada com sucesso.');
-          this.navigateTo('config');
+          sessionStorage.setItem('logoutToast', 'Sua sessão foi encerrada com sucesso.');
+          window.location.reload();
         }
       });
+    }
+
+    if (sessionStorage.getItem('logoutToast')) {
+      this.toast('info', 'Desconectado', sessionStorage.getItem('logoutToast'));
+      sessionStorage.removeItem('logoutToast');
     }
 
     console.log('📧 Email Marketing Pro — Iniciado');
