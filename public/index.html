@@ -61,13 +61,10 @@
       </nav>
 
       <div class="sidebar-footer">
-        <div class="connection-status" id="connection-status" style="margin-bottom: 12px;">
+        <div class="connection-status" id="connection-status" style="margin-bottom: 8px;">
           <span class="status-dot" id="status-dot"></span>
           <span id="status-text">Desconectado</span>
         </div>
-        <button class="btn btn-outline btn-sm w-full" id="btn-logout" style="justify-content: center; color: var(--text-muted); border-color: var(--border-color);">
-          <i data-lucide="log-out" class="lucide-icon"></i> Desconectar
-        </button>
       </div>
     </aside>
 
@@ -92,6 +89,7 @@
             </div>
           </div>
         </div>
+        <button class="icon-btn" title="Desconectar / Sair" id="btn-logout" style="color: var(--danger);"><i data-lucide="log-out" class="lucide-icon"></i></button>
         <img src="https://ui-avatars.com/api/?name=User&background=4648d4&color=fff" alt="User" class="user-avatar">
       </div>
     </header>
