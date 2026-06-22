@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email Marketing Pro — Disparo em Massa Profissional</title>
+  <meta name="description" content="Plataforma profissional de email marketing para envio em massa. Configure seu provedor, importe contatos e dispare campanhas personalizadas.">
+  <link rel="stylesheet" href="/css/styles.css?v=2">
+  <link rel="stylesheet" href="/css/styles.css?v=2">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📧</text></svg>">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <meta name="google-client-id" content="1062500725265-gtscm1o0qdtv39rhfgvpamm6av76i5v1.apps.googleusercontent.com">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- ═══ SIDEBAR ═══ -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo"><i data-lucide="mail" class="lucide-icon"></i></div>
+        <div class="sidebar-brand">
+          <h1>Email Marketing</h1>
+          <span>Disparo Profissional</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">Principal</div>
+        <a class="nav-item active" data-section="dashboard" id="nav-dashboard">
+          <span class="icon"><i data-lucide="layout-dashboard" class="lucide-icon"></i></span>
+          <span>Dashboard</span>
+        </a>
+        <a class="nav-item" data-section="config" id="nav-config">
+          <span class="icon"><i data-lucide="settings" class="lucide-icon"></i></span>
+          <span>Configuração</span>
+        </a>
+
+        <div class="nav-section-label">Campanha</div>
+        <a class="nav-item" data-section="template" id="nav-template">
+          <span class="icon"><i data-lucide="file-text" class="lucide-icon"></i></span>
+          <span>Template</span>
+        </a>
+        <a class="nav-item" data-section="contacts" id="nav-contacts">
+          <span class="icon"><i data-lucide="users" class="lucide-icon"></i></span>
+          <span>Contatos</span>
+          <span class="badge hidden" id="contacts-badge">0</span>
+        </a>
+
+        <div class="nav-section-label">Envio</div>
+        <a class="nav-item" data-section="send" id="nav-send">
+          <span class="icon"><i data-lucide="rocket" class="lucide-icon"></i></span>
+          <span>Disparar</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="connection-status" id="connection-status">
+          <span class="status-dot" id="status-dot"></span>
+          <span id="status-text">Desconectado</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ═══ MAIN ═══ -->
+    <main class="main-content">
+      <!-- ─── DASHBOARD ─── -->
+      <div class="section active" id="section-dashboard">
+        <div class="page-header">
+          <div class="page-title">
+            <h2><i data-lucide="layout-dashboard" class="lucide-icon"></i> Dashboard</h2>
+            <p>Visão geral da sua campanha</p>
+          </div>
+        </div>
+        <div class="page-body">
+          <div class="stats-grid">
+            <div class="card stat-card" id="dash-card-config">
+              <div class="stat-icon purple"><i data-lucide="settings" class="lucide-icon"></i></div>
+              <div class="stat-value" id="dash-provider">GMAIL</div>
+              <div class="stat-label">Provedor Configurado</div>
+            </div>
+            <div class="card stat-card" id="dash-card-template">
+              <div class="stat-icon blue"><i data-lucide="mail" class="lucide-icon"></i></div>
+              <div class="stat-value" id="dash-template">Sim <span style="color:var(--accent);">✅</span></div>
+              <div class="stat-label">Template Carregado</div>
+            </div>
+            <div class="card stat-card" id="dash-card-contacts">
+              <div class="stat-icon green"><i data-lucide="users" class="lucide-icon"></i></div>
+              <div class="stat-value" id="dash-contacts-count">0</div>
+              <div class="stat-label">Contatos Válidos</div>
+            </div>
+            <div class="card stat-card" id="dash-card-tags">
+              <div class="stat-icon yellow"><i data-lucide="tag" class="lucide-icon"></i></div>
+              <div class="stat-value" id="dash-tags-count">0</div>
+              <div class="stat-label">Tags Detectadas</div>
+            </div>
+          </div>
+
+          <!-- Histórico de Campanhas -->
+          <div class="card mt-xl">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+              <h3><i data-lucide="history" class="lucide-icon inline-icon"></i> Histórico Recente de Disparos</h3>
+              <button class="btn btn-outline btn-sm" id="btn-clear-history" style="display: none;"><i data-lucide="trash-2" class="lucide-icon"></i> Limpar</button>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table" id="history-table">
+                  <thead>
+                    <tr>
+                      <th>Data/Hora</th>
+                      <th>Assunto</th>
+                      <th>Enviados</th>
+                      <th>Falhas</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="history-table-body">
+                    <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:2rem;">Nenhum disparo registrado neste navegador.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="card mt-xl">
+            <div class="card-header">
+              <h3><i data-lucide="map" class="lucide-icon"></i> Etapas da Campanha</h3>
+            </div>
+            <div class="card-body">
+              <div class="steps-progress">
+                <div class="step-item" id="step-config">
+                  <div class="step-number">1</div>
+                  <div class="step-info">
+                    <div class="step-title">Configurar Email</div>
+                    <div class="step-desc">Conecte seu provedor SMTP</div>
+                  </div>
+                  <span class="badge badge-warning" id="step-config-badge">Pendente</span>
+                </div>
+                <div class="step-item" id="step-template">
+                  <div class="step-number">2</div>
+                  <div class="step-info">
+                    <div class="step-title">Criar Template</div>
+                    <div class="step-desc">Escreva ou importe seu HTML</div>
+                  </div>
+                  <span class="badge badge-warning" id="step-template-badge">Pendente</span>
+                </div>
+                <div class="step-item" id="step-contacts">
+                  <div class="step-number">3</div>
+                  <div class="step-info">
+                    <div class="step-title">Importar Contatos</div>
+                    <div class="step-desc">Upload de planilha Excel/CSV</div>
+                  </div>
+                  <span class="badge badge-warning" id="step-contacts-badge">Pendente</span>
+                </div>
+                <div class="step-item" id="step-send">
+                  <div class="step-number">4</div>
+                  <div class="step-info">
+                    <div class="step-title">Testar e Disparar</div>
+                    <div class="step-desc">Envie teste e depois em massa</div>
+                  </div>
+                  <span class="badge badge-warning" id="step-send-badge">Pendente</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Guia de Entregabilidade -->
+          <div class="card mt-lg">
+            <div class="card-header">
+              <h3><i data-lucide="shield" class="lucide-icon"></i> Guia de Entregabilidade</h3>
+            </div>
+            <div class="card-body">
+              <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: var(--space-md);">
+                Para seus emails chegarem na <strong>caixa de entrada</strong> e não no spam, siga estas práticas:
+              </p>
+              <div class="tips-grid">
+                <div class="tip-item">
+                  <span class="tip-icon"><i data-lucide="lock" class="lucide-icon"></i></span>
+                  <div>
+                    <strong>SPF / DKIM / DMARC</strong>
+                    <p>Configure registros DNS no seu domínio para autenticar os emails.</p>
+                  </div>
+                </div>
+                <div class="tip-item">
+                  <span class="tip-icon"><i data-lucide="snail" class="lucide-icon"></i></span>
+                  <div>
+                    <strong>Aquecimento Gradual</strong>
+                    <p>Comece enviando poucos emails/dia e aumente gradualmente ao longo de semanas.</p>
+                  </div>
+                </div>
+                <div class="tip-item">
+                  <span class="tip-icon"><i data-lucide="file-edit" class="lucide-icon"></i></span>
+                  <div>
+                    <strong>Conteúdo Limpo</strong>
+                    <p>Evite CAPS LOCK, muitas exclamações, e palavras como "GRÁTIS", "URGENTE".</p>
+                  </div>
+                </div>
+                <div class="tip-item">
+                  <span class="tip-icon"><i data-lucide="link" class="lucide-icon"></i></span>
+                  <div>
+                    <strong>Link de Descadastro</strong>
+                    <p>Sempre inclua um link para o destinatário se descadastrar.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── CONFIGURAÇÃO ─── -->
+      <div class="section" id="section-config">
+        <div class="page-header">
+          <div class="page-title">
+            <h2><i data-lucide="settings" class="lucide-icon"></i> Configuração de Email</h2>
+            <p>Conecte seu provedor de email para envio</p>
+          </div>
+        </div>
+        <div class="page-body">
+          <div class="card mb-lg">
+            <div class="card-header">
+              <h3><i data-lucide="inbox" class="lucide-icon"></i> Selecione o Provedor</h3>
+            </div>
+            <div class="card-body">
+              <div class="providers-grid" id="providers-grid">
+                <div class="provider-card" data-provider="gmail">
+                  <div class="provider-icon"><i data-lucide="mail" class="lucide-icon"></i></div>
+                  <div class="provider-name">Gmail</div>
+                  <div class="provider-desc">smtp.gmail.com:465</div>
+                </div>
+                <div class="provider-card" data-provider="outlook">
+                  <div class="provider-icon"><i data-lucide="mail-open" class="lucide-icon"></i></div>
+                  <div class="provider-name">Outlook</div>
+                  <div class="provider-desc">smtp-mail.outlook.com:587</div>
+                </div>
+                <div class="provider-card" data-provider="yahoo">
+                  <div class="provider-icon"><i data-lucide="send" class="lucide-icon"></i></div>
+                  <div class="provider-name">Yahoo</div>
+                  <div class="provider-desc">smtp.mail.yahoo.com:465</div>
+                </div>
+                <div class="provider-card" data-provider="office365">
+                  <div class="provider-icon"><i data-lucide="building" class="lucide-icon"></i></div>
+                  <div class="provider-name">Office 365</div>
+                  <div class="provider-desc">smtp.office365.com:587</div>
+                </div>
+                <div class="provider-card" data-provider="zoho">
+                  <div class="provider-icon"><i data-lucide="mail" class="lucide-icon"></i></div>
+                  <div class="provider-name">Zoho</div>
+                  <div class="provider-desc">smtp.zoho.com:465</div>
+                </div>
+                <div class="provider-card" data-provider="sendgrid">
+                  <div class="provider-icon"><i data-lucide="send" class="lucide-icon"></i></div>
+                  <div class="provider-name">SendGrid</div>
+                  <div class="provider-desc">smtp.sendgrid.net:587</div>
+                </div>
+                <div class="provider-card" data-provider="amazonses">
+                  <div class="provider-icon"><i data-lucide="cloud" class="lucide-icon"></i></div>
+                  <div class="provider-name">Amazon SES</div>
+                  <div class="provider-desc">email-smtp.amazonaws.com</div>
+                </div>
+                <div class="provider-card" data-provider="custom">
+                  <div class="provider-icon"><i data-lucide="wrench" class="lucide-icon"></i></div>
+                  <div class="provider-name">SMTP Custom</div>
+                  <div class="provider-desc">Configure manualmente</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" id="smtp-config-card" style="display:none;">
+            <div class="card-header">
+              <h3><i data-lucide="key" class="lucide-icon"></i> Credenciais SMTP</h3>
+              <span class="badge badge-info" id="selected-provider-badge"></span>
+            </div>
+            <div class="card-body">
+              <!-- Campos SMTP customizado (hidden by default) -->
+              <div id="custom-smtp-fields" style="display:none;">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Host SMTP</label>
+                    <input type="text" class="form-input" id="smtp-host" placeholder="smtp.seuservidor.com">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Porta</label>
+                    <input type="number" class="form-input" id="smtp-port" placeholder="587">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-checkbox">
+                    <input type="checkbox" id="smtp-secure">
+                    Usar SSL/TLS (porta 465)
+                  </label>
+                </div>
+              </div>
+
+              <div id="standard-auth-fields">
+                <div class="form-group">
+                  <label class="form-label">Email (Usuário SMTP)</label>
+                  <input type="email" class="form-input" id="smtp-user" placeholder="seuemail@provedor.com">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Senha / Senha de App</label>
+                  <input type="password" class="form-input" id="smtp-pass" placeholder="••••••••••">
+                  <div class="form-help" id="provider-help-text"></div>
+                </div>
+              </div>
+
+              <!-- Login do Google (Aparece apenas quando provider=gmail) -->
+              <div id="gmail-oauth-section" style="display:none; text-align:center; padding: 20px 0;">
+                <p style="margin-bottom: 16px; color: var(--text-secondary);">Para maior segurança, conecte-se via Google OAuth2 em vez de usar senha.</p>
+                <button type="button" id="btn-google-login" style="background:#fff; color:#3c4043; border:1px solid #dadce0; border-radius:4px; padding:10px 24px; font-weight:500; font-family:'Google Sans',Roboto,Arial,sans-serif; font-size:14px; cursor:pointer; display:inline-flex; align-items:center; gap:10px; box-shadow:0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15); transition: background-color .2s;">
+                  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path></svg>
+                  Fazer login com o Google
+                </button>
+                <div id="google-connected-user" style="display:none; margin-top:16px; color:var(--accent);">
+                  <i data-lucide="check-circle" class="inline-icon"></i> <span id="google-user-email"></span> conectado com sucesso!
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Nome do Remetente (opcional)</label>
+                <input type="text" class="form-input" id="smtp-from-name" placeholder="Minha Empresa">
+              </div>
+            </div>
+            <div class="card-footer">
+              <button class="btn btn-outline" id="btn-clear-config">Limpar</button>
+              <button class="btn btn-primary" id="btn-verify-connection">
+                <span>🔌 Verificar Conexão</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── TEMPLATE ─── -->
+      <div class="section" id="section-template">
+        <div class="page-header">
+          <div class="page-title">
+            <h2><i data-lucide="file-text" class="lucide-icon"></i> Template da Mensagem</h2>
+            <p>Crie ou importe seu template HTML com tags personalizáveis</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-outline btn-sm" id="btn-clear-template"><i data-lucide="trash-2" class="lucide-icon"></i> Limpar</button>
+            <button class="btn btn-outline btn-sm" id="btn-load-sample"><i data-lucide="file" class="lucide-icon"></i> Carregar Exemplo</button>
+          </div>
+        </div>
+        <div class="page-body">
+          <!-- Upload HTML -->
+          <div class="card mb-lg">
+            <div class="card-header">
+              <h3><i data-lucide="folder" class="lucide-icon"></i> Upload de Arquivo</h3>
+            </div>
+            <div class="card-body">
+              <div class="upload-zone" id="template-upload-zone">
+                <div class="upload-icon"><i data-lucide="file" class="lucide-icon"></i></div>
+                <div class="upload-text">Arraste um arquivo HTML ou JSON aqui</div>
+                <div class="upload-hint">Ou clique para selecionar • Formatos: .html, .htm, .json</div>
+                <input type="file" id="template-file-input" accept=".html,.htm,.json">
+              </div>
+            </div>
+          </div>
+
+          <!-- Assunto -->
+          <div class="card mb-lg">
+            <div class="card-body">
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label"><i data-lucide="pin" class="lucide-icon"></i> Assunto do Email</label>
+                <input type="text" class="form-input" id="email-subject" placeholder="Ex: Olá {{nome}}, temos uma oferta especial para você!">
+                <div class="form-help">Use tags como {{nome}} para personalizar o assunto.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Editor + Preview -->
+          <div class="editor-layout">
+            <div class="editor-panel">
+              <div class="card" style="flex:1;display:flex;flex-direction:column;">
+                <div class="card-header">
+                  <h3><i data-lucide="monitor" class="lucide-icon"></i> Editor HTML</h3>
+                </div>
+                <div class="card-body" style="flex:1;display:flex;flex-direction:column;">
+                  <div class="code-editor" style="flex:1;">
+                    <textarea id="html-editor" placeholder="Cole ou escreva seu HTML aqui...&#10;&#10;Use tags como {{nome}}, {{email}}, {{empresa}} para personalização.&#10;Elas serão substituídas pelos dados dos contatos."></textarea>
+                  </div>
+                  
+                  <!-- Spam Score / Saúde do Email -->
+                  <div class="spam-score-panel mt-md p-md" style="background: var(--bg-tertiary); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                      <strong style="font-size: 13px; color: var(--text-secondary);"><i data-lucide="shield-check" class="inline-icon"></i> Saúde do Email (Spam Score)</strong>
+                      <span id="spam-status-text" class="badge badge-success">Excelente</span>
+                    </div>
+                    <div class="progress-bar-container" style="height: 6px; background: var(--border-color);">
+                      <div class="progress-bar-fill" id="spam-score-bar" style="width: 10%; background: var(--accent);"></div>
+                    </div>
+                    <div id="spam-warnings" style="margin-top: 8px; font-size: 12px; color: var(--warning); display: none;"></div>
+                  </div>
+
+                  <div id="tags-container" class="mt-md">
+                    <label class="form-label"><i data-lucide="tag" class="lucide-icon inline-icon"></i> Tags detectadas (clique para inserir):</label>
+                    <div class="tag-pills" id="tag-pills">
+                      <span class="empty-hint" style="font-size:12px;color:var(--text-muted);">Nenhuma tag detectada — use {{campo}} no HTML</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="editor-panel">
+              <div class="card" style="flex:1;display:flex;flex-direction:column;">
+                <div class="card-header">
+                  <h3><i data-lucide="eye" class="lucide-icon"></i> Pré-visualização</h3>
+                  <button class="btn btn-outline btn-sm" id="btn-refresh-preview"><i data-lucide="refresh-cw" class="lucide-icon"></i> Atualizar</button>
+                </div>
+                <div class="card-body" style="flex:1;padding:0;">
+                  <div class="preview-frame">
+                    <iframe id="preview-iframe" sandbox="allow-same-origin"></iframe>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── CONTATOS ─── -->
+      <div class="section" id="section-contacts">
+        <div class="page-header">
+          <div class="page-title">
+            <h2><i data-lucide="users" class="lucide-icon"></i> Gerenciador de Contatos</h2>
+            <p>Importe sua lista de contatos via Excel ou CSV</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-outline btn-sm hidden" id="btn-clear-contacts"><i data-lucide="trash-2" class="lucide-icon"></i> Limpar</button>
+          </div>
+        </div>
+        <div class="page-body">
+          <!-- Upload -->
+          <div class="card mb-lg" id="contacts-upload-card">
+            <div class="card-header">
+              <h3><i data-lucide="folder" class="lucide-icon"></i> Upload de Planilha</h3>
+            </div>
+            <div class="card-body">
+              <div class="upload-zone" id="contacts-upload-zone">
+                <div class="upload-icon"><i data-lucide="layout-dashboard" class="lucide-icon"></i></div>
+                <div class="upload-text">Arraste sua planilha de contatos aqui</div>
+                <div class="upload-hint">Formatos aceitos: .xlsx, .xls, .csv • Máximo 50MB</div>
+                <input type="file" id="contacts-file-input" accept=".xlsx,.xls,.csv">
+              </div>
+            </div>
+          </div>
+
+          <!-- Resumo da Importação -->
+          <div class="card mb-lg hidden" id="contacts-summary-card">
+            <div class="card-header">
+              <h3><i data-lucide="clipboard-list" class="lucide-icon"></i> Resumo da Importação</h3>
+            </div>
+            <div class="card-body">
+              <div class="stats-grid">
+                <div class="stat-card">
+                  <div class="stat-icon green"><i data-lucide="check-circle" class="lucide-icon"></i></div>
+                  <div class="stat-value" id="valid-count">0</div>
+                  <div class="stat-label">Contatos Válidos</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-icon red"><i data-lucide="x-circle" class="lucide-icon"></i></div>
+                  <div class="stat-value" id="invalid-count">0</div>
+                  <div class="stat-label">Emails Inválidos</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-icon blue"><i data-lucide="clipboard-list" class="lucide-icon"></i></div>
+                  <div class="stat-value" id="fields-count">0</div>
+                  <div class="stat-label">Campos Detectados</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-icon yellow"><i data-lucide="scissors" class="lucide-icon"></i></div>
+                  <div class="stat-value" id="duplicate-count">0</div>
+                  <div class="stat-label">Duplicados Removidos</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mapeamento de Campos -->
+          <div class="card mb-lg hidden" id="fields-mapping-card">
+            <div class="card-header">
+              <h3><i data-lucide="tag" class="lucide-icon"></i> Campos Detectados → Tags para o Template</h3>
+            </div>
+            <div class="card-body">
+              <p style="color:var(--text-secondary);font-size:13px;margin-bottom:var(--space-md);">
+                Estes são os campos encontrados na sua planilha. Use <code style="color:var(--primary-light);background:rgba(108,99,255,0.1);padding:2px 6px;border-radius:4px;">{{nome_do_campo}}</code> no HTML para personalizar.
+              </p>
+              <div class="table-container">
+                <table id="fields-table">
+                  <thead>
+                    <tr>
+                      <th>Campo da Planilha</th>
+                      <th>Tag para o HTML</th>
+                      <th>Exemplo 1</th>
+                      <th>Exemplo 2</th>
+                      <th>Exemplo 3</th>
+                    </tr>
+                  </thead>
+                  <tbody id="fields-table-body"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Preview de Contatos -->
+          <div class="card hidden" id="contacts-preview-card">
+            <div class="card-header">
+              <h3><i data-lucide="eye" class="lucide-icon"></i> Preview dos Contatos</h3>
+              <span class="badge badge-info" id="preview-count-badge">0 exibidos</span>
+            </div>
+            <div class="card-body" style="padding:0;">
+              <div class="table-container">
+                <table id="contacts-table">
+                  <thead id="contacts-table-head"></thead>
+                  <tbody id="contacts-table-body"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── ENVIO ─── -->
+      <div class="section" id="section-send">
+        <div class="page-header">
+          <div class="page-title">
+            <h2><i data-lucide="rocket" class="lucide-icon"></i> Painel de Envio</h2>
+            <p>Revise, teste e dispare sua campanha</p>
+          </div>
+        </div>
+        <div class="page-body">
+          <!-- Resumo -->
+          <div class="card mb-lg">
+            <div class="card-header">
+              <h3><i data-lucide="clipboard-list" class="lucide-icon"></i> Resumo da Campanha</h3>
+            </div>
+            <div class="card-body">
+              <div class="summary-grid">
+                <div class="summary-item">
+                  <div class="summary-icon"><i data-lucide="inbox" class="lucide-icon"></i></div>
+                  <div class="summary-info">
+                    <div class="summary-label">Provedor</div>
+                    <div class="summary-value" id="send-provider">Não configurado</div>
+                  </div>
+                </div>
+                <div class="summary-item">
+                  <div class="summary-icon"><i data-lucide="mail" class="lucide-icon"></i></div>
+                  <div class="summary-info">
+                    <div class="summary-label">Remetente</div>
+                    <div class="summary-value" id="send-from">—</div>
+                  </div>
+                </div>
+                <div class="summary-item">
+                  <div class="summary-icon"><i data-lucide="file-text" class="lucide-icon"></i></div>
+                  <div class="summary-info">
+                    <div class="summary-label">Assunto</div>
+                    <div class="summary-value" id="send-subject">—</div>
+                  </div>
+                </div>
+                <div class="summary-item">
+                  <div class="summary-icon"><i data-lucide="users" class="lucide-icon"></i></div>
+                  <div class="summary-info">
+                    <div class="summary-label">Destinatários</div>
+                    <div class="summary-value" id="send-total">0 contatos</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Enviar Teste -->
+          <div class="card mb-lg">
+            <div class="card-header">
+              <h3><i data-lucide="flask-conical" class="lucide-icon"></i> Enviar Email de Teste</h3>
+            </div>
+            <div class="card-body">
+              <div class="form-row">
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label">Email para teste</label>
+                  <input type="email" class="form-input" id="test-email-input" placeholder="seuemail@teste.com">
+                </div>
+                <div class="form-group" style="margin-bottom:0;display:flex;align-items:flex-end;">
+                  <button class="btn btn-outline w-full" id="btn-send-test" disabled>
+                    <i data-lucide="flask-conical" class="lucide-icon"></i> Enviar Teste
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Velocidade -->
+          <div class="card mb-lg">
+            <div class="card-header">
+              <h3><i data-lucide="zap" class="lucide-icon"></i> Configuração de Velocidade</h3>
+            </div>
+            <div class="card-body">
+              <div class="speed-control">
+                <label>Delay entre emails:</label>
+                <input type="range" id="send-delay" min="500" max="10000" step="500" value="2000">
+                <span class="speed-value" id="send-delay-value">2.0s</span>
+              </div>
+              <div class="speed-control">
+                <label>Emails por lote:</label>
+                <input type="range" id="batch-size" min="1" max="5" step="1" value="3">
+                <span class="speed-value" id="batch-size-value">3</span>
+              </div>
+              <div class="form-help">
+                ⚠️ Velocidades muito altas podem causar bloqueio pelo provedor. Recomendado: 2-3s de delay, 3 por lote.
+              </div>
+            </div>
+          </div>
+
+          <!-- Botão de Disparo -->
+          <div class="card mb-lg">
+            <div class="card-body text-center" style="padding:var(--space-2xl);">
+              <button class="btn btn-success btn-lg" id="btn-send-bulk" disabled>
+                <i data-lucide="rocket" class="lucide-icon"></i> Disparar Campanha em Massa
+              </button>
+              <p style="color:var(--text-muted);font-size:13px;margin-top:var(--space-md);" id="send-readiness">
+                Configure o provedor, template e contatos para habilitar o envio.
+              </p>
+            </div>
+          </div>
+
+          <!-- Progresso -->
+          <div class="card mb-lg hidden" id="progress-card">
+            <div class="card-header">
+              <h3><i data-lucide="layout-dashboard" class="lucide-icon"></i> Progresso do Envio</h3>
+              <div class="page-actions">
+                <button class="btn btn-outline btn-sm hidden" id="btn-pause"><i data-lucide="pause" class="lucide-icon"></i> Pausar</button>
+                <button class="btn btn-outline btn-sm hidden" id="btn-resume"><i data-lucide="play" class="lucide-icon"></i> Retomar</button>
+                <button class="btn btn-danger btn-sm hidden" id="btn-cancel"><i data-lucide="square" class="lucide-icon"></i> Cancelar</button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="circular-progress" id="circular-progress">
+                <svg viewBox="0 0 120 120">
+                  <defs>
+                    <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="#6C63FF"/>
+                      <stop offset="100%" stop-color="#10B981"/>
+                    </linearGradient>
+                  </defs>
+                  <circle class="bg-circle" cx="60" cy="60" r="54"/>
+                  <circle class="progress-circle" id="progress-circle" cx="60" cy="60" r="54"/>
+                </svg>
+                <span class="progress-text" id="progress-percent">0%</span>
+              </div>
+
+              <div class="progress-large">
+                <div class="progress-bar-container">
+                  <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
+                </div>
+                <div class="progress-info">
+                  <span id="progress-sent">0 enviados</span>
+                  <span id="progress-time">Tempo restante: —</span>
+                </div>
+              </div>
+
+              <div class="stats-grid mt-lg">
+                <div class="stat-card">
+                  <div class="stat-icon green"><i data-lucide="check-circle" class="lucide-icon"></i></div>
+                  <div class="stat-value" id="prog-sent">0</div>
+                  <div class="stat-label">Enviados</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-icon red"><i data-lucide="x-circle" class="lucide-icon"></i></div>
+                  <div class="stat-value" id="prog-failed">0</div>
+                  <div class="stat-label">Falhas</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-icon blue"><i data-lucide="hourglass" class="lucide-icon"></i></div>
+                  <div class="stat-value" id="prog-pending">0</div>
+                  <div class="stat-label">Pendentes</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Log -->
+          <div class="card hidden" id="log-card">
+            <div class="card-header">
+              <h3><i data-lucide="scroll-text" class="lucide-icon"></i> Log de Envio</h3>
+              <button class="btn btn-ghost btn-sm" id="btn-clear-log">Limpar</button>
+            </div>
+            <div class="card-body" style="padding:0 var(--space-md) var(--space-md);">
+              <div class="send-log" id="send-log"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Modal de Confirmação -->
+  <div class="modal-overlay hidden" id="confirm-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modal-title">Confirmar Envio</h3>
+        <button class="btn btn-ghost btn-sm" id="modal-close-btn">✕</button>
+      </div>
+      <div class="modal-body" id="modal-body">
+        <p>Tem certeza que deseja disparar a campanha?</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" id="modal-cancel-btn">Cancelar</button>
+        <button class="btn btn-success" id="modal-confirm-btn">Confirmar Envio</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SheetJS via CDN (para parsing Excel no cliente) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+  <!-- App Scripts -->
+  <script src="/js/app.js"></script>
+  <script src="/js/emailConfig.js"></script>
+  <script src="/js/templateEditor.js"></script>
+  <script src="/js/contactManager.js"></script>
+  <script src="/js/sendManager.js"></script>
+  <script src="/js/dashboard.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>
