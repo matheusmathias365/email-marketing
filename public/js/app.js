@@ -21,6 +21,23 @@ const App = {
     this.loadState();
     this.initNotifications();
     this.startUnsubscribePolling();
+    
+    // Configurar botão de logout
+    const btnLogout = document.getElementById('btn-logout');
+    if (btnLogout) {
+      btnLogout.addEventListener('click', () => {
+        if (confirm('Tem certeza que deseja desconectar o provedor de e-mail?')) {
+          this.state.provider = null;
+          this.state.smtpConfig = null;
+          this.state.isConnected = false;
+          this.saveState();
+          this.updateConnectionUI();
+          this.toast('info', 'Desconectado', 'Sua sessão foi encerrada com sucesso.');
+          this.navigateTo('config');
+        }
+      });
+    }
+
     console.log('📧 Email Marketing Pro — Iniciado');
   },
 

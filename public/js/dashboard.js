@@ -28,7 +28,14 @@ const Dashboard = {
     this.updateStep('config', App.state.isConnected);
     this.updateStep('template', !!App.state.template.html);
     this.updateStep('contacts', App.state.validContacts.length > 0);
-    this.updateStep('send', false); // nunca marca como concluído automaticamente
+    
+    // Disparo concluído se tem histórico local
+    const historyData = localStorage.getItem('emailpro_history');
+    let hasSent = false;
+    try {
+      if (historyData && JSON.parse(historyData).length > 0) hasSent = true;
+    } catch(e) {}
+    this.updateStep('send', hasSent);
   },
 
   updateStep(stepId, completed) {
