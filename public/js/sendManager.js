@@ -73,8 +73,9 @@ const SendManager = {
         html = App.mergeTemplate(html, fakeContact);
         subject = App.mergeTemplate(subject, fakeContact);
 
-        // Injeta link de descadastro
-        const unsubHtml = `<div style="margin-top:40px;padding-top:20px;border-top:1px solid #eee;font-size:12px;color:#888;text-align:center;font-family:sans-serif;">Para não receber mais nossos e-mails, <a href="http://localhost:3000/unsubscribe.html?email=${encodeURIComponent(testEmail)}" style="color:#666;">clique aqui para se descadastrar</a>.</div>`;
+        // Injeta link de descadastro dinâmico com a URL atual (Vercel ou Localhost)
+        const baseUrl = window.location.origin;
+        const unsubHtml = `<div style="margin-top:40px;padding-top:20px;border-top:1px solid #eee;font-size:12px;color:#888;text-align:center;font-family:sans-serif;">Para não receber mais nossos e-mails, <a href="${baseUrl}/unsubscribe.html?email=${encodeURIComponent(testEmail)}" style="color:#666;">clique aqui para se descadastrar</a>.</div>`;
         html += unsubHtml;
 
         await App.apiCall('send', {
@@ -152,7 +153,8 @@ const SendManager = {
         let mergedHtml = App.mergeTemplate(htmlTemplate, contact);
         
         // Injeta link de descadastro dinâmico
-        const unsubLink = `http://localhost:3000/unsubscribe.html?email=${encodeURIComponent(emailAddress)}`;
+        const baseUrl = window.location.origin;
+        const unsubLink = `${baseUrl}/unsubscribe.html?email=${encodeURIComponent(emailAddress)}`;
         const unsubHtml = `<div style="margin-top:40px;padding-top:20px;border-top:1px solid #eee;font-size:12px;color:#888;text-align:center;font-family:sans-serif;">Para não receber mais nossos e-mails, <a href="${unsubLink}" style="color:#666;">clique aqui para se descadastrar</a>.</div>`;
         mergedHtml += unsubHtml;
 
