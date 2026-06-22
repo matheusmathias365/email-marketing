@@ -48,6 +48,11 @@ const TemplateEditor = {
     this.updateTags();
     this.updatePreview();
     this.updateSpamScore(subject, html);
+
+    const subjectHint = document.getElementById('preview-subject-hint');
+    if (subjectHint) {
+      subjectHint.textContent = subject || '(Preencha o assunto)';
+    }
   },
 
   setupUpload() {

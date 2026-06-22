@@ -22,10 +22,11 @@ const SendManager = {
     document.getElementById('send-subject').textContent = App.state.template.subject || '—';
     document.getElementById('send-total').textContent = `${App.state.validContacts.length} contatos`;
 
-    // Habilitar botões
+    // Removermos a desabilitação automática aqui pois faremos por validação popup
+    // const ready = App.state.isConnected && App.state.template.html && App.state.validContacts.length > 0;
+    // document.getElementById('btn-send-bulk').disabled = !ready || this.sending;
+    // document.getElementById('btn-send-test').disabled = !App.state.isConnected || !App.state.template.html;
     const ready = App.state.isConnected && App.state.template.html && App.state.validContacts.length > 0;
-    document.getElementById('btn-send-bulk').disabled = !ready || this.sending;
-    document.getElementById('btn-send-test').disabled = !App.state.isConnected || !App.state.template.html;
 
     if (ready) {
       document.getElementById('send-readiness').textContent = '<i data-lucide="check-circle" class="lucide-icon inline-icon"></i> Tudo pronto para o envio!';
@@ -35,13 +36,21 @@ const SendManager = {
       if (!App.state.isConnected) missing.push('provedor de email');
       if (!App.state.template.html) missing.push('template HTML');
       if (App.state.validContacts.length === 0) missing.push('contatos');
-      document.getElementById('send-readiness').textContent = `⚠️ Falta configurar: ${missing.join(', ')}`;
+      document.getElementById('send-readiness').innerHTML = `⚠️ Falta configurar: ${missing.join(', ')}`;
       document.getElementById('send-readiness').style.color = 'var(--warning)';
     }
   },
 
   setupTestButton() {
     document.getElementById('btn-send-test').addEventListener('click', async () => {
+      const checks = App.validateSend();
+      const hasErrors = checks.some(c => !c.ok);
+      
+      if (hasErrors) {
+        App.showValidationModal(checks);
+        return;
+      }
+
       const testEmail = document.getElementById('test-email-input').value.trim();
       if (!testEmail) {
         App.toast('warning', 'Email Obrigatório', 'Insira um email para teste.');
@@ -58,10 +67,15 @@ const SendManager = {
         let subject = App.state.template.subject || 'Email de Teste';
 
         // Merge com primeiro contato ou dados fictícios
-        if (App.state.validContacts.length > 0) {
-          html = App.mergeTemplate(html, App.state.validContacts[0]);
-          subject = App.mergeTemplate(subject, App.state.validContacts[0]);
-        }
+        let fakeContact = App.state.validContacts.length > 0 ? { ...App.state.validContacts[0] } : {};
+        fakeContact.email = testEmail; // Garante que o link de descadastro terá o email correto do teste
+
+        html = App.mergeTemplate(html, fakeContact);
+        subject = App.mergeTemplate(subject, fakeContact);
+
+        // Injeta link de descadastro
+        const unsubHtml = `<div style="margin-top:40px;padding-top:20px;border-top:1px solid #eee;font-size:12px;color:#888;text-align:center;font-family:sans-serif;">Para não receber mais nossos e-mails, <a href="http://localhost:3000/unsubscribe.html?email=${encodeURIComponent(testEmail)}" style="color:#666;">clique aqui para se descadastrar</a>.</div>`;
+        html += unsubHtml;
 
         await App.apiCall('send', {
           body: { ...cfg, to: testEmail, subject, html }
@@ -79,6 +93,14 @@ const SendManager = {
 
   setupBulkButton() {
     document.getElementById('btn-send-bulk').addEventListener('click', async () => {
+      const checks = App.validateSend();
+      const hasErrors = checks.some(c => !c.ok);
+      
+      if (hasErrors) {
+        App.showValidationModal(checks);
+        return;
+      }
+
       const total = App.state.validContacts.length;
       const confirmed = await App.confirm(
         '<i data-lucide="rocket" class="lucide-icon inline-icon"></i> Confirmar Envio em Massa',
@@ -125,11 +147,21 @@ const SendManager = {
       if (this.cancelled) break;
 
       const batch = contacts.slice(i, i + batchSize);
-      const emails = batch.map(contact => ({
-        to: contact.email || contact.Email || contact.EMAIL,
-        subject: App.mergeTemplate(subjectTemplate, contact),
-        html: App.mergeTemplate(htmlTemplate, contact)
-      }));
+      const emails = batch.map(contact => {
+        const emailAddress = contact.email || contact.Email || contact.EMAIL;
+        let mergedHtml = App.mergeTemplate(htmlTemplate, contact);
+        
+        // Injeta link de descadastro dinâmico
+        const unsubLink = `http://localhost:3000/unsubscribe.html?email=${encodeURIComponent(emailAddress)}`;
+        const unsubHtml = `<div style="margin-top:40px;padding-top:20px;border-top:1px solid #eee;font-size:12px;color:#888;text-align:center;font-family:sans-serif;">Para não receber mais nossos e-mails, <a href="${unsubLink}" style="color:#666;">clique aqui para se descadastrar</a>.</div>`;
+        mergedHtml += unsubHtml;
+
+        return {
+          to: emailAddress,
+          subject: App.mergeTemplate(subjectTemplate, contact),
+          html: mergedHtml
+        };
+      });
 
       try {
         const result = await App.apiCall('send-batch', {

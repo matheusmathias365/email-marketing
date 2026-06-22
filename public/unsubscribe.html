@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Descadastro (Unsubscribe) - EmailPro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --danger: #ef4444;
+      --success: #10b981;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .unsubscribe-card {
+      background: var(--card-bg);
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 40px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+    .icon-container {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px auto;
+    }
+    .icon-container.success {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+    }
+    h1 {
+      font-size: 24px;
+      margin: 0 0 16px 0;
+    }
+    p {
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin: 0 0 32px 0;
+    }
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.2s;
+    }
+    .btn:hover {
+      background: var(--primary-hover);
+    }
+    .email-display {
+      font-weight: 600;
+      color: white;
+      background: rgba(255,255,255,0.05);
+      padding: 8px 16px;
+      border-radius: 6px;
+      display: inline-block;
+      margin-bottom: 24px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="unsubscribe-card" id="card-confirm">
+    <div class="icon-container">
+      <i data-lucide="mail-minus" style="width: 32px; height: 32px;"></i>
+    </div>
+    <h1>Confirmar Descadastro</h1>
+    <p>Você tem certeza de que deseja parar de receber nossos e-mails?</p>
+    <div class="email-display" id="email-label">carregando...</div>
+    <button class="btn" id="btn-confirm">Sim, quero me descadastrar</button>
+  </div>
+
+  <div class="unsubscribe-card" id="card-success" style="display: none;">
+    <div class="icon-container success">
+      <i data-lucide="check-circle" style="width: 32px; height: 32px;"></i>
+    </div>
+    <h1>Descadastrado!</h1>
+    <p>Seu e-mail foi removido de nossa lista. Você não receberá mais comunicações nossas.</p>
+  </div>
+
+  <script>
+    lucide.createIcons();
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const email = urlParams.get('email');
+    
+    if (email) {
+      document.getElementById('email-label').textContent = email;
+    } else {
+      document.getElementById('email-label').textContent = "E-mail não identificado";
+      document.getElementById('btn-confirm').disabled = true;
+      document.getElementById('btn-confirm').style.opacity = '0.5';
+    }
+
+    document.getElementById('btn-confirm').addEventListener('click', async () => {
+      if (!email) return;
+      
+      const btn = document.getElementById('btn-confirm');
+      btn.textContent = "Processando...";
+      btn.disabled = true;
+
+      try {
+        const response = await fetch(`/api/unsubscribe?email=${encodeURIComponent(email)}`);
+        const data = await response.json();
+        
+        if (data.success) {
+          document.getElementById('card-confirm').style.display = 'none';
+          document.getElementById('card-success').style.display = 'block';
+        } else {
+          alert('Erro ao processar: ' + data.error);
+          btn.textContent = "Tentar Novamente";
+          btn.disabled = false;
+        }
+      } catch (err) {
+        alert('Falha na comunicação com o servidor.');
+        btn.textContent = "Tentar Novamente";
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

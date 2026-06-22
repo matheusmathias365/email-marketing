@@ -133,8 +133,8 @@ const ContactManager = {
     // Upload zone
     const zone = document.getElementById('contacts-upload-zone');
     zone.classList.add('has-file');
-    zone.querySelector('.upload-text').textContent = `<i data-lucide="check-circle" class="lucide-icon inline-icon"></i> ${fileName}`;
-    zone.querySelector('.upload-hint').textContent = `${contacts.length} contatos (${valid} válidos, ${duplicates} duplicados removidos)`;
+    zone.querySelector('.upload-text').innerHTML = `<i data-lucide="check-circle" class="lucide-icon inline-icon"></i> ${fileName}`;
+    zone.querySelector('.upload-hint').innerHTML = `${contacts.length} contatos (${valid} válidos, ${duplicates} duplicados removidos)`;
     if (typeof lucide !== "undefined") lucide.createIcons({ root: zone });
 
     // Resumo

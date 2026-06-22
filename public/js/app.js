@@ -16,12 +16,11 @@ const App = {
     isPaused: false
   },
 
-  /**
-   * Inicializa a aplicação
-   */
   init() {
     this.setupNavigation();
     this.loadState();
+    this.initNotifications();
+    this.startUnsubscribePolling();
     console.log('📧 Email Marketing Pro — Iniciado');
   },
 
@@ -95,13 +94,20 @@ const App = {
   updateConnectionUI() {
     const dot = document.getElementById('status-dot');
     const text = document.getElementById('status-text');
+    const avatar = document.querySelector('.user-avatar');
 
     if (this.state.isConnected) {
       dot.className = 'status-dot connected';
-      text.textContent = this.state.smtpConfig?.user || 'Conectado';
+      const userEmail = this.state.smtpConfig?.user;
+      text.textContent = userEmail || 'Conectado';
+      
+      if (userEmail && avatar) {
+        avatar.src = `https://unavatar.io/${userEmail}?fallback=https://ui-avatars.com/api/?name=User&background=4648d4&color=fff`;
+      }
     } else {
       dot.className = 'status-dot';
       text.textContent = 'Desconectado';
+      if (avatar) avatar.src = 'https://ui-avatars.com/api/?name=User&background=4648d4&color=fff';
     }
   },
 
@@ -219,6 +225,156 @@ const App = {
     if (min < 60) return `${min}m ${sec}s`;
     const hrs = Math.floor(min / 60);
     return `${hrs}h ${min % 60}m`;
+  },
+
+  /**
+   * Valida se está pronto para envio (Teste ou Massa)
+   */
+  validateSend() {
+    const checks = [];
+    
+    // 1. Provedor SMTP
+    if (this.state.isConnected) {
+      checks.push({ ok: true, msg: 'Provedor de Email (SMTP) conectado.' });
+    } else {
+      checks.push({ ok: false, msg: 'Você precisa configurar o Provedor de Email na aba Configuração.' });
+    }
+
+    // 2. Template
+    if (this.state.template.html && this.state.template.html.trim().length > 0) {
+      checks.push({ ok: true, msg: 'Template HTML carregado.' });
+    } else {
+      checks.push({ ok: false, msg: 'O Template de Email está vazio. Cole seu código na aba Template.' });
+    }
+
+    // 3. Contatos Válidos
+    if (this.state.validContacts.length > 0) {
+      checks.push({ ok: true, msg: `${this.state.validContacts.length} contatos válidos detectados.` });
+    } else {
+      checks.push({ ok: false, msg: 'Nenhum contato válido importado. Adicione sua lista na aba Contatos.' });
+    }
+
+    return checks;
+  },
+
+  showValidationModal(checks) {
+    const overlay = document.getElementById('validation-modal');
+    const checklistDiv = document.getElementById('validation-checklist');
+    
+    checklistDiv.innerHTML = checks.map(c => `
+      <div class="check-item ${c.ok ? 'success' : 'error'}">
+        <i data-lucide="${c.ok ? 'check-circle' : 'x-circle'}" class="lucide-icon"></i>
+        <span>${c.msg}</span>
+      </div>
+    `).join('');
+    
+    lucide.createIcons({ root: checklistDiv });
+    
+    overlay.classList.remove('hidden');
+
+    document.getElementById('val-modal-close-btn').onclick = () => overlay.classList.add('hidden');
+    document.getElementById('val-modal-ok-btn').onclick = () => overlay.classList.add('hidden');
+    overlay.onclick = (e) => { if (e.target === overlay) overlay.classList.add('hidden'); };
+  },
+
+  /**
+   * Sistema de Notificações Superiores (Sininho)
+   */
+  notifications: [],
+  unreadCount: 0,
+
+  initNotifications() {
+    const btn = document.getElementById('btn-notifications');
+    const dropdown = document.getElementById('notification-dropdown');
+    const clearBtn = document.getElementById('btn-clear-notifications');
+
+    if (!btn) return;
+
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdown.classList.toggle('active');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
+        dropdown.classList.remove('active');
+      }
+    });
+
+    clearBtn.addEventListener('click', () => {
+      this.notifications = [];
+      this.updateNotificationUI();
+      // Chama api para marcar no backend
+      fetch('/api/mark-unsubscribes-read').catch(()=>{});
+    });
+  },
+
+  addNotification(type, title, msg) {
+    const icons = {
+      error: '<i data-lucide="x-circle" style="color:var(--danger)"></i>',
+      success: '<i data-lucide="check-circle" style="color:var(--success)"></i>',
+      warning: '<i data-lucide="alert-triangle" style="color:var(--warning)"></i>',
+      info: '<i data-lucide="info" style="color:var(--accent)"></i>'
+    };
+
+    this.notifications.unshift({
+      icon: icons[type] || icons.info,
+      title: title,
+      msg: msg,
+      time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+    });
+
+    if (this.notifications.length > 50) this.notifications.pop();
+    
+    this.unreadCount++;
+    this.updateNotificationUI();
+  },
+
+  updateNotificationUI() {
+    const badge = document.getElementById('notification-badge');
+    const list = document.getElementById('notification-list');
+    
+    if (this.unreadCount > 0) {
+      badge.textContent = this.unreadCount;
+      badge.classList.remove('hidden');
+    } else {
+      badge.classList.add('hidden');
+    }
+
+    if (this.notifications.length === 0) {
+      list.innerHTML = '<div class="notification-empty">Nenhuma notificação no momento.</div>';
+      return;
+    }
+
+    list.innerHTML = this.notifications.map(n => `
+      <div class="notification-item">
+        <div class="notif-icon">${n.icon}</div>
+        <div class="notif-content">
+          <div class="notif-title">${n.title}</div>
+          <div class="notif-msg">${n.msg}</div>
+          <div class="notif-time">${n.time}</div>
+        </div>
+      </div>
+    `).join('');
+    
+    lucide.createIcons({ root: list });
+  },
+
+  startUnsubscribePolling() {
+    setInterval(async () => {
+      try {
+        const res = await fetch('/api/get-unsubscribes');
+        const data = await res.json();
+        if (data.success && data.unsubscribes && data.unsubscribes.length > 0) {
+          data.unsubscribes.forEach(u => {
+            this.addNotification('warning', 'Descadastro Realizado', `O e-mail ${u.email} solicitou o descadastro.`);
+            this.toast('warning', 'Novo Descadastro', `${u.email} se descadastrou.`);
+          });
+          // Marca logo após notificar pra não duplicar
+          await fetch('/api/mark-unsubscribes-read');
+        }
+      } catch(e) {}
+    }, 10000); // 10s
   }
 };
 
