@@ -26,8 +26,9 @@ module.exports = async function handler(req, res) {
     // Limitar batch a 5 emails
     const batch = emails.slice(0, 5);
     const transporter = createTransporter({ provider, user, pass, host, port, secure });
-    const domain = user.split('@')[1] || 'localhost';
-    const senderName = fromName || user.split('@')[0];
+    const safeUser = user || 'email@desconhecido.com';
+    const domain = safeUser.split('@')[1] || 'localhost';
+    const senderName = fromName || safeUser.split('@')[0];
 
     const results = [];
 

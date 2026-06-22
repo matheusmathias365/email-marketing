@@ -80,7 +80,7 @@ const EmailConfig = {
     if (window.google && window.google.accounts && window.google.accounts.oauth2) {
       oauthClient = google.accounts.oauth2.initCodeClient({
         client_id: clientId,
-        scope: 'https://mail.google.com/',
+        scope: 'https://mail.google.com/ email profile',
         ux_mode: 'popup',
         callback: (response) => {
           if (response.error) {

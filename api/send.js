@@ -23,11 +23,12 @@ module.exports = async function handler(req, res) {
 
     const transporter = createTransporter({ provider, user, pass, host, port, secure });
 
-    const domain = user.split('@')[1] || 'localhost';
+    const safeUser = user || 'email@desconhecido.com';
+    const domain = safeUser.split('@')[1] || 'localhost';
     const messageId = `<${crypto.randomUUID()}@${domain}>`;
 
     const mailOptions = {
-      from: `"${fromName || user.split('@')[0]}" <${user}>`,
+      from: `"${fromName || safeUser.split('@')[0]}" <${safeUser}>`,
       to,
       subject: subject || 'Email de Teste',
       html,
