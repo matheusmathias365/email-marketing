@@ -14,34 +14,49 @@ module.exports = async (req, res) => {
       return res.status(400).json({ success: false, error: 'E-mail não fornecido' });
     }
 
+    let unsubscribes = [];
     const dataDir = path.join(__dirname, '..', 'data');
-    if (!fs.existsSync(dataDir)) {
-      fs.mkdirSync(dataDir, { recursive: true });
+    const file = path.join(dataDir, 'unsubscribes.json');
+
+    // 1. Tentar ler do arquivo local (se existir e for legível)
+    try {
+      if (fs.existsSync(file)) {
+        unsubscribes = JSON.parse(fs.readFileSync(file, 'utf8'));
+      }
+    } catch (e) {
+      // Ignora erro de leitura
     }
 
-    const file = path.join(dataDir, 'unsubscribes.json');
-    let unsubscribes = [];
+    // 2. Mesclar com a memória global (para instâncias Serverless / Vercel)
+    if (!global.unsubscribes_db) {
+      global.unsubscribes_db = [];
+    }
+    unsubscribes = [...unsubscribes, ...global.unsubscribes_db];
+    
+    // Remover duplicatas por email
+    unsubscribes = Array.from(new Map(unsubscribes.map(item => [item.email, item])).values());
 
-    if (fs.existsSync(file)) {
-      const content = fs.readFileSync(file, 'utf8');
+    // 3. Verifica se já está na lista
+    if (!unsubscribes.some(item => item.email === email)) {
+      const newEntry = {
+        email: email,
+        date: new Date().toISOString(),
+        read: false
+      };
+      
+      unsubscribes.push(newEntry);
+      global.unsubscribes_db.push(newEntry); // Salva na memória da Lambda
+
+      // 4. Tentar gravar no disco (Falhar silenciosamente na Vercel pois o disco é Read-Only)
       try {
-        unsubscribes = JSON.parse(content);
-      } catch (e) {
-        unsubscribes = [];
+        if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+        fs.writeFileSync(file, JSON.stringify(unsubscribes, null, 2));
+      } catch (writeError) {
+        console.log("Vercel Serverless environment detected (Read-only disk). Using memory store temporarily.");
       }
     }
 
-    // Verifica se já está na lista
-    if (!unsubscribes.some(item => item.email === email)) {
-      unsubscribes.push({
-        email: email,
-        date: new Date().toISOString(),
-        read: false // A dashboard marcará como true depois
-      });
-      fs.writeFileSync(file, JSON.stringify(unsubscribes, null, 2));
-    }
-
-    // Sucesso - o html publico que cuida da exibicao chamará essa rota
+    // Sucesso
     return res.status(200).json({ success: true, message: 'Email removido com sucesso' });
   } catch (error) {
     console.error('Erro no unsubscribe:', error);
