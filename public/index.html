@@ -10,6 +10,8 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📧</text></svg>">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <meta name="google-client-id" content="1062500725265-gtscm1o0qdtv39rhfgvpamm6av76i5v1.apps.googleusercontent.com">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#050505">
 </head>
 <body>
   <div class="app-layout">
@@ -724,5 +726,12 @@
   <script src="/js/dashboard.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>lucide.createIcons();</script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(err => console.error('SW falhou', err));
+      });
+    }
+  </script>
 </body>
 </html>

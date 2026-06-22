@@ -1,0 +1,17 @@
+{
+  "name": "Email Marketing Pro",
+  "short_name": "Email Pro",
+  "description": "Plataforma profissional de email marketing para envio em massa.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#6366F1",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
