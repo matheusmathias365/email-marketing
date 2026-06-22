@@ -12,7 +12,7 @@ module.exports = async function handler(req, res) {
   try {
     const {
       // Credenciais SMTP
-      provider, user, pass, host, port, secure, fromName,
+      provider, user, pass, host, port, secure, fromName, oauth,
       // Dados do email
       to, subject, html, replyTo
     } = req.body;
@@ -21,7 +21,7 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ success: false, error: 'Campos obrigatórios: to, html' });
     }
 
-    const transporter = createTransporter({ provider, user, pass, host, port, secure });
+    const transporter = createTransporter({ provider, user, pass, host, port, secure, oauth });
 
     const safeUser = user || 'email@desconhecido.com';
     const domain = safeUser.split('@')[1] || 'localhost';

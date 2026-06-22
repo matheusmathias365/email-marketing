@@ -14,18 +14,20 @@ module.exports = async function handler(req, res) {
 
   try {
     const {
-      provider, user, pass, host, port, secure, fromName,
-      emails, // Array de { to, subject, html }
+      // Credenciais SMTP
+      provider, user, pass, host, port, secure, fromName, oauth,
+      // Lote de emails: [{ to, subject, html }, ...]
+      emails,
       replyTo
     } = req.body;
 
     if (!emails || !Array.isArray(emails) || emails.length === 0) {
-      return res.status(400).json({ success: false, error: 'Campo "emails" (array) é obrigatório' });
+      return res.status(400).json({ success: false, error: 'Lista de emails inválida' });
     }
 
     // Limitar batch a 5 emails
     const batch = emails.slice(0, 5);
-    const transporter = createTransporter({ provider, user, pass, host, port, secure });
+    const transporter = createTransporter({ provider, user, pass, host, port, secure, oauth });
     const safeUser = user || 'email@desconhecido.com';
     const domain = safeUser.split('@')[1] || 'localhost';
     const senderName = fromName || safeUser.split('@')[0];
