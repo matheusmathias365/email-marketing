@@ -1252,6 +1252,8 @@ tr:last-child td {
 .summary-item .summary-value {
   font-size: 15px;
   font-weight: 600;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 /* ─── Speed Control ─── */
