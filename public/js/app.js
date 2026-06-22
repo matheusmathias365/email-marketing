@@ -230,7 +230,7 @@ const App = {
   /**
    * Valida se está pronto para envio (Teste ou Massa)
    */
-  validateSend() {
+  validateSend(isTest = false) {
     const checks = [];
     
     // 1. Provedor SMTP
@@ -247,11 +247,13 @@ const App = {
       checks.push({ ok: false, msg: 'O Template de Email está vazio. Cole seu código na aba Template.' });
     }
 
-    // 3. Contatos Válidos
-    if (this.state.validContacts.length > 0) {
-      checks.push({ ok: true, msg: `${this.state.validContacts.length} contatos válidos detectados.` });
-    } else {
-      checks.push({ ok: false, msg: 'Nenhum contato válido importado. Adicione sua lista na aba Contatos.' });
+    // 3. Contatos Válidos (Se for envio em massa)
+    if (!isTest) {
+      if (this.state.validContacts && this.state.validContacts.length > 0) {
+        checks.push({ ok: true, msg: 'Contatos importados com sucesso.' });
+      } else {
+        checks.push({ ok: false, msg: 'Nenhum contato válido encontrado. Importe uma planilha.' });
+      }
     }
 
     return checks;

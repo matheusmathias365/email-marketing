@@ -43,7 +43,7 @@ const SendManager = {
 
   setupTestButton() {
     document.getElementById('btn-send-test').addEventListener('click', async () => {
-      const checks = App.validateSend();
+      const checks = App.validateSend(true);
       const hasErrors = checks.some(c => !c.ok);
       
       if (hasErrors) {
