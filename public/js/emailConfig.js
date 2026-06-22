@@ -130,6 +130,8 @@ const EmailConfig = {
           oauth: App.state.oauth
         };
         App.state.isConnected = true;
+        App.saveState();
+        App.updateConnectionUI();
 
         // Atualizar UI
         document.getElementById('google-connected-user').style.display = 'block';
