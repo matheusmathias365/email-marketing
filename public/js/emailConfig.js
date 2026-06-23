@@ -6,7 +6,7 @@ const EmailConfig = {
     gmail: '<i data-lucide="lightbulb" class="inline-icon" style="color:var(--warning)"></i> No Gmail, ative a Verificação em 2 etapas e gere uma <strong>Senha de App</strong>: Google → Segurança → Verificação em duas etapas → Senhas de app',
     outlook: '<i data-lucide="lightbulb" class="inline-icon" style="color:var(--warning)"></i> Use sua senha normal. Se tiver 2FA ativado, gere uma Senha de App nas configurações de segurança.',
     yahoo: '<i data-lucide="lightbulb" class="inline-icon" style="color:var(--warning)"></i> Gere uma Senha de App: Yahoo → Segurança da Conta → Gerar senha de app',
-    office365: '<i data-lucide="lightbulb" class="inline-icon" style="color:var(--warning)"></i> Use suas credenciais corporativas do Office 365.',
+    office365: '<i data-lucide="lightbulb" class="inline-icon" style="color:var(--warning)"></i> <strong>Atenção:</strong> O Office 365 desativa o envio via senha normal por padrão. Você precisa gerar uma <strong>Senha de App</strong> nas configurações de segurança da sua conta Microsoft, ou pedir ao administrador de TI para habilitar o <strong>SMTP AUTH</strong> para sua caixa postal.',
     zoho: '<i data-lucide="lightbulb" class="inline-icon" style="color:var(--warning)"></i> Gere uma Senha de App no painel de segurança do Zoho Mail.',
     sendgrid: '<i data-lucide="lightbulb" class="inline-icon" style="color:var(--warning)"></i> Use <strong>apikey</strong> como usuário e sua API Key como senha.',
     amazonses: '<i data-lucide="lightbulb" class="inline-icon" style="color:var(--warning)"></i> Use as credenciais SMTP geradas no console da AWS SES.',
