@@ -27,7 +27,8 @@ async function initMSAL() {
 async function loginMicrosoft() {
     try {
         const response = await msalInstance.loginPopup({
-            scopes: ["user.read", "https://outlook.office.com/SMTP.Send"]
+            scopes: ["user.read", "https://outlook.office.com/SMTP.Send"],
+            prompt: "select_account"
         });
         msalInstance.setActiveAccount(response.account);
         return response;
