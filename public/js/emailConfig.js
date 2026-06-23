@@ -41,15 +41,23 @@ const EmailConfig = {
         // Mostrar ou Esconder o formulário de senha vs Google OAuth
         const authSection = document.getElementById('standard-auth-fields');
         const oauthSection = document.getElementById('gmail-oauth-section');
+        const msOauthSection = document.getElementById('microsoft-oauth-section');
         const verifyBtn = document.getElementById('btn-verify-connection');
         
         if (provider === 'gmail') {
           authSection.style.display = 'none';
           oauthSection.style.display = 'block';
+          if(msOauthSection) msOauthSection.style.display = 'none';
           verifyBtn.style.display = 'none'; // Oculta botão de testar conexão (OAuth testa sozinho)
+        } else if (provider === 'office365') {
+          authSection.style.display = 'none';
+          oauthSection.style.display = 'none';
+          if(msOauthSection) msOauthSection.style.display = 'block';
+          verifyBtn.style.display = 'none';
         } else {
           authSection.style.display = 'block';
           oauthSection.style.display = 'none';
+          if(msOauthSection) msOauthSection.style.display = 'none';
           verifyBtn.style.display = 'inline-flex';
         }
 
@@ -63,8 +71,11 @@ const EmailConfig = {
       });
     });
     
-    // Iniciar configuração do Google OAuth se os elementos existirem
-    setTimeout(() => this.setupGoogleOAuth(), 500);
+    // Iniciar configuração do Google e Microsoft OAuth se os elementos existirem
+    setTimeout(() => {
+      this.setupGoogleOAuth();
+      this.setupMicrosoftOAuth();
+    }, 500);
   },
 
   setupGoogleOAuth() {
@@ -146,6 +157,53 @@ const EmailConfig = {
       btnGoogle.innerHTML = 'Tentar novamente';
       btnGoogle.disabled = false;
     }
+  },
+
+  setupMicrosoftOAuth() {
+    const btnMicrosoft = document.getElementById('btn-microsoft-login');
+    if (!btnMicrosoft) return;
+
+    btnMicrosoft.addEventListener('click', async () => {
+      if (!window.MSAuth) {
+        App.toast('error', 'Erro', 'O SDK da Microsoft não carregou.');
+        return;
+      }
+      
+      btnMicrosoft.innerHTML = '⏳ Conectando...';
+      btnMicrosoft.disabled = true;
+
+      try {
+        const response = await window.MSAuth.login();
+        
+        // Salvar estado
+        App.state.oauth = {
+          clientId: "b711968c-531c-4e5b-8c67-7e917980ca57",
+          accessToken: response.accessToken, // Token inicial
+          account: response.account
+        };
+        App.state.smtpConfig = {
+          provider: 'office365',
+          user: response.account.username,
+          oauth: App.state.oauth
+        };
+        App.state.isConnected = true;
+        App.saveState();
+        App.updateConnectionUI();
+
+        // Atualizar UI
+        document.getElementById('microsoft-connected-user').style.display = 'block';
+        document.getElementById('microsoft-user-email').textContent = response.account.username;
+        btnMicrosoft.style.display = 'none';
+
+        App.toast('success', 'Conectado!', 'Conta Microsoft vinculada com sucesso.');
+        if (typeof Dashboard !== 'undefined') Dashboard.refresh();
+      } catch (e) {
+        console.error(e);
+        App.toast('error', 'Login Falhou', 'Não foi possível conectar com a Microsoft.');
+        btnMicrosoft.innerHTML = 'Tentar novamente';
+        btnMicrosoft.disabled = false;
+      }
+    });
   },
 
   setupVerifyButton() {
@@ -238,6 +296,17 @@ const EmailConfig = {
         document.getElementById('google-user-email').textContent = cfg.user;
         document.getElementById('standard-auth-fields').style.display = 'none';
         document.getElementById('gmail-oauth-section').style.display = 'block';
+        const msSec = document.getElementById('microsoft-oauth-section');
+        if (msSec) msSec.style.display = 'none';
+        document.getElementById('btn-verify-connection').style.display = 'none';
+      } else if (cfg.provider === 'office365' && cfg.oauth) {
+        document.getElementById('btn-microsoft-login').style.display = 'none';
+        document.getElementById('microsoft-connected-user').style.display = 'block';
+        document.getElementById('microsoft-user-email').textContent = cfg.user;
+        document.getElementById('standard-auth-fields').style.display = 'none';
+        document.getElementById('gmail-oauth-section').style.display = 'none';
+        const msSec = document.getElementById('microsoft-oauth-section');
+        if (msSec) msSec.style.display = 'block';
         document.getElementById('btn-verify-connection').style.display = 'none';
       }
     }
