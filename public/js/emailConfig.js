@@ -49,7 +49,7 @@ const EmailConfig = {
           oauthSection.style.display = 'block';
           if(msOauthSection) msOauthSection.style.display = 'none';
           verifyBtn.style.display = 'none'; // Oculta botão de testar conexão (OAuth testa sozinho)
-        } else if (provider === 'office365') {
+        } else if (provider === 'office365' || provider === 'outlook') {
           authSection.style.display = 'none';
           oauthSection.style.display = 'none';
           if(msOauthSection) msOauthSection.style.display = 'block';
@@ -182,7 +182,7 @@ const EmailConfig = {
           account: response.account
         };
         App.state.smtpConfig = {
-          provider: 'office365',
+          provider: App.state.provider === 'outlook' ? 'outlook' : 'office365',
           user: response.account.username,
           oauth: App.state.oauth
         };
@@ -299,7 +299,7 @@ const EmailConfig = {
         const msSec = document.getElementById('microsoft-oauth-section');
         if (msSec) msSec.style.display = 'none';
         document.getElementById('btn-verify-connection').style.display = 'none';
-      } else if (cfg.provider === 'office365' && cfg.oauth) {
+      } else if ((cfg.provider === 'office365' || cfg.provider === 'outlook') && cfg.oauth) {
         document.getElementById('btn-microsoft-login').style.display = 'none';
         document.getElementById('microsoft-connected-user').style.display = 'block';
         document.getElementById('microsoft-user-email').textContent = cfg.user;
